@@ -104,7 +104,8 @@ The HUD includes:
 
 - `P` opens and closes the pause menu.
 - `Esc` opens pause during normal gameplay and closes it while paused.
-- Pause options are Save Game, Load Game, Settings, Resume, and Quit to Menu.
+- Pause options include Save Game, Load Game, Settings, Resume, and Quit to Menu. Save and Load expand into three slot choices.
+- Saving a selected slot requires confirmation because existing progress in that slot will be overwritten. Loading warns that unsaved progress will be discarded.
 - The scene tree is paused while the pause overlay is visible.
 
 ### Settings
@@ -120,7 +121,9 @@ Settings are stored in `user://random_rpg_settings.json` and loaded by the `Sett
 
 ## 4. Save and Load Flow
 
-`SaveSystem.gd` stores JSON in `user://random_rpg_save.json`.
+`SaveSystem.gd` stores JSON in three slot files: `user://random_rpg_save_1.json` through `user://random_rpg_save_3.json`.
+
+The old `user://random_rpg_save.json` file is accepted as a legacy Slot 1 save.
 
 The save payload contains:
 

@@ -1,7 +1,31 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/HUD.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/SettingsPanel.tscn" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_panel"]
+bg_color = Color(0.035, 0.045, 0.07, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.35, 0.5, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirmation_panel"]
+bg_color = Color(0.07, 0.04, 0.04, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 0.3, 0.2, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1")
@@ -161,9 +185,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -180.0
-offset_top = -170.0
+offset_top = -260.0
 offset_right = 180.0
-offset_bottom = 170.0
+offset_bottom = 260.0
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/PauseOverlay/PausePanel"]
 layout_mode = 2
@@ -221,8 +245,114 @@ offset_top = -150.0
 offset_right = 180.0
 offset_bottom = 150.0
 
+[node name="SlotSelectionPanel" type="PanelContainer" parent="Control/PauseOverlay"]
+visible = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot_panel")
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -190.0
+offset_right = 210.0
+offset_bottom = 190.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/PauseOverlay/SlotSelectionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Select Slot"
+horizontal_alignment = 1
+
+[node name="WarningLabel" type="Label" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Warning"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Slot1Button" type="Button" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Slot 1"
+
+[node name="Slot2Button" type="Button" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Slot 2"
+
+[node name="Slot3Button" type="Button" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Slot 3"
+
+[node name="CancelButton" type="Button" parent="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
+[node name="SaveConfirmationPanel" type="PanelContainer" parent="Control/PauseOverlay"]
+visible = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_confirmation_panel")
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -140.0
+offset_right = 230.0
+offset_bottom = 140.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/PauseOverlay/SaveConfirmationPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Confirm Save"
+horizontal_alignment = 1
+
+[node name="WarningLabel" type="Label" parent="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "Warning: existing progress will be overwritten."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Overwrite and Save"
+
+[node name="CancelButton" type="Button" parent="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
 [connection signal="pressed" from="Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/SaveButton" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/LoadButton" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/SettingsButton" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/QuitButton" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/Slot1Button" to="." method="_on_save_slot_1_pressed"]
+[connection signal="pressed" from="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/Slot2Button" to="." method="_on_save_slot_2_pressed"]
+[connection signal="pressed" from="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/Slot3Button" to="." method="_on_save_slot_3_pressed"]
+[connection signal="pressed" from="Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/CancelButton" to="." method="_on_slot_selection_cancelled"]
+[connection signal="pressed" from="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer/ConfirmButton" to="." method="_on_save_confirmation_confirmed"]
+[connection signal="pressed" from="Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer/CancelButton" to="." method="_on_save_confirmation_cancelled"]

@@ -19,8 +19,14 @@ func _ready() -> void:
 	quest_manager.quest_updated.connect(hud.set_quest_text)
 	hud.save_requested.connect(save_game)
 	hud.load_requested.connect(load_game)
+	hud.save_slot_requested.connect(save_game)
+	hud.load_slot_requested.connect(load_game)
 	hud.quit_requested.connect(_quit_to_menu)
 	save_system.save_completed.connect(hud.show_save_status)
+	if Settings.pending_load_slot > 0:
+		var slot := Settings.pending_load_slot
+		Settings.pending_load_slot = 0
+		save_system.load_game(player, quest_manager, day_night, slot)
 
 
 func _process(_delta: float) -> void:
@@ -29,12 +35,12 @@ func _process(_delta: float) -> void:
 	hud.set_time(day_night.get_time_string())
 
 
-func save_game() -> void:
-	save_system.save_game(player, quest_manager, day_night)
+func save_game(slot: int = 1) -> void:
+	save_system.save_game(player, quest_manager, day_night, slot)
 
 
-func load_game() -> void:
-	save_system.load_game(player, quest_manager, day_night)
+func load_game(slot: int = 1) -> void:
+	save_system.load_game(player, quest_manager, day_night, slot)
 
 
 func _quit_to_menu() -> void:

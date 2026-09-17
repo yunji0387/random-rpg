@@ -4,6 +4,7 @@ const SETTINGS_PATH := "user://random_rpg_settings.json"
 
 var mouse_sensitivity: float = 0.0025
 var brightness: float = 1.0
+var pending_load_slot: int = 0
 
 
 func _ready() -> void:

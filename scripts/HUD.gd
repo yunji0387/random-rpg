@@ -2,6 +2,8 @@ extends CanvasLayer
 
 signal save_requested
 signal load_requested
+signal save_slot_requested(slot: int)
+signal load_slot_requested(slot: int)
 signal quit_requested
 
 @onready var health_bar: ProgressBar = $Control/HealthBar
@@ -19,7 +21,15 @@ signal quit_requested
 @onready var inventory_summary_label: Label = $Control/InventoryPanel/MarginContainer/VBoxContainer/InventorySummaryLabel
 @onready var pause_overlay: ColorRect = $Control/PauseOverlay
 @onready var pause_status_label: Label = $Control/PauseOverlay/PausePanel/MarginContainer/VBoxContainer/PauseStatusLabel
+@onready var slot_selection_panel: PanelContainer = $Control/PauseOverlay/SlotSelectionPanel
+@onready var slot_selection_title: Label = $Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/TitleLabel
+@onready var slot_selection_warning: Label = $Control/PauseOverlay/SlotSelectionPanel/MarginContainer/VBoxContainer/WarningLabel
+@onready var save_confirmation_panel: PanelContainer = $Control/PauseOverlay/SaveConfirmationPanel
+@onready var save_confirmation_label: Label = $Control/PauseOverlay/SaveConfirmationPanel/MarginContainer/VBoxContainer/WarningLabel
 @onready var settings_panel: PanelContainer = $Control/SettingsPanel
+
+var slot_selection_mode := ""
+var selected_save_slot := 0
 
 
 func _ready() -> void:
@@ -30,6 +40,8 @@ func _ready() -> void:
 	inventory_panel.visible = false
 	inventory_list.clear()
 	pause_overlay.visible = false
+	slot_selection_panel.visible = false
+	save_confirmation_panel.visible = false
 	settings_panel.visible = false
 	settings_panel.close_requested.connect(_on_settings_closed)
 
@@ -45,6 +57,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				player.toggle_inventory()
 		elif settings_panel.visible:
 			_on_settings_closed()
+		elif save_confirmation_panel.visible:
+			_on_save_confirmation_cancelled()
+		elif slot_selection_panel.visible:
+			_on_slot_selection_cancelled()
 		elif pause_overlay.visible:
 			toggle_pause_menu()
 		else:
@@ -54,6 +70,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func toggle_pause_menu() -> void:
 	if settings_panel.visible:
+		return
+	if slot_selection_panel.visible or save_confirmation_panel.visible:
 		return
 	if inventory_panel.visible:
 		return
@@ -68,11 +86,79 @@ func _on_resume_pressed() -> void:
 
 
 func _on_save_pressed() -> void:
-	save_requested.emit()
+	_open_slot_selection("save")
 
 
 func _on_load_pressed() -> void:
-	load_requested.emit()
+	_open_slot_selection("load")
+
+
+func _on_save_slot_pressed(slot: int) -> void:
+	if slot_selection_mode == "save":
+		selected_save_slot = slot
+		save_confirmation_label.text = "Warning: saving to Slot %d will overwrite its existing progress." % slot
+		slot_selection_panel.visible = false
+		save_confirmation_panel.visible = true
+	else:
+		_on_load_slot_pressed(slot)
+
+
+func _open_slot_selection(mode: String) -> void:
+	slot_selection_mode = mode
+	slot_selection_panel.visible = true
+	save_confirmation_panel.visible = false
+	if mode == "save":
+		slot_selection_title.text = "Save Game"
+		slot_selection_warning.text = "Select a slot. Existing progress in that slot will be overwritten."
+	else:
+		slot_selection_title.text = "Load Game"
+		slot_selection_warning.text = "Warning: loading will discard unsaved progress."
+
+
+func _on_slot_selection_cancelled() -> void:
+	slot_selection_panel.visible = false
+	slot_selection_mode = ""
+
+
+func _on_save_confirmation_confirmed() -> void:
+	save_slot_requested.emit(selected_save_slot)
+	save_confirmation_panel.visible = false
+	slot_selection_mode = ""
+
+
+func _on_save_confirmation_cancelled() -> void:
+	save_confirmation_panel.visible = false
+	slot_selection_mode = ""
+
+
+func _on_load_slot_pressed(slot: int) -> void:
+	load_slot_requested.emit(slot)
+	slot_selection_panel.visible = false
+	slot_selection_mode = ""
+
+
+func _on_save_slot_1_pressed() -> void:
+	_on_save_slot_pressed(1)
+
+
+func _on_save_slot_2_pressed() -> void:
+	_on_save_slot_pressed(2)
+
+
+func _on_save_slot_3_pressed() -> void:
+	_on_save_slot_pressed(3)
+
+
+func _on_load_slot_1_pressed() -> void:
+	_on_load_slot_pressed(1)
+
+
+func _on_load_slot_2_pressed() -> void:
+	_on_load_slot_pressed(2)
+
+
+func _on_load_slot_3_pressed() -> void:
+	_on_load_slot_pressed(3)
 
 
 func _on_settings_pressed() -> void:

@@ -1,7 +1,8 @@
 class_name SaveSystem
 extends Node
 
-const SAVE_PATH := "user://random_rpg_save.json"
+const LEGACY_SAVE_PATH := "user://random_rpg_save.json"
+const SAVE_PATH_TEMPLATE := "user://random_rpg_save_%d.json"
 const SAVE_VERSION := 1
 
 signal save_completed(success: bool, message: String)
@@ -12,7 +13,10 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
-func save_game(player: Node, quest_manager: Node, day_night: Node) -> bool:
+func save_game(player: Node, quest_manager: Node, day_night: Node, slot: int = 1) -> bool:
+	if not _is_valid_slot(slot):
+		save_completed.emit(false, "Invalid save slot")
+		return false
 	var data := {
 		"version": SAVE_VERSION,
 		"player": _player_to_dict(player),
@@ -22,21 +26,27 @@ func save_game(player: Node, quest_manager: Node, day_night: Node) -> bool:
 			"day_count": day_night.day_count
 		}
 	}
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(_slot_path(slot), FileAccess.WRITE)
 	if file == null:
 		save_completed.emit(false, "Unable to open save file")
 		return false
 	file.store_string(JSON.stringify(data))
 	file.close()
-	save_completed.emit(true, "Game saved")
+	save_completed.emit(true, "Game saved to Slot %d" % slot)
 	return true
 
 
-func load_game(player: Node, quest_manager: Node, day_night: Node) -> bool:
-	if not FileAccess.file_exists(SAVE_PATH):
-		save_completed.emit(false, "No save file found")
+func load_game(player: Node, quest_manager: Node, day_night: Node, slot: int = 1) -> bool:
+	if not _is_valid_slot(slot):
+		save_completed.emit(false, "Invalid save slot")
 		return false
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var path := _slot_path(slot)
+	if slot == 1 and not FileAccess.file_exists(path) and FileAccess.file_exists(LEGACY_SAVE_PATH):
+		path = LEGACY_SAVE_PATH
+	if not FileAccess.file_exists(path):
+		save_completed.emit(false, "No save in Slot %d" % slot)
+		return false
+	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		save_completed.emit(false, "Unable to read save file")
 		return false
@@ -49,12 +59,26 @@ func load_game(player: Node, quest_manager: Node, day_night: Node) -> bool:
 	_apply_player(player, parsed.get("player", {}))
 	_apply_quest(quest_manager, parsed.get("quest", {}))
 	_apply_day_night(day_night, parsed.get("day_night", {}))
-	save_completed.emit(true, "Game loaded")
+	save_completed.emit(true, "Loaded Slot %d" % slot)
 	return true
 
 
-func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+static func has_save(slot: int = 1) -> bool:
+	if not _is_valid_slot(slot):
+		return false
+	return FileAccess.file_exists(_slot_path(slot)) or (slot == 1 and FileAccess.file_exists(LEGACY_SAVE_PATH))
+
+
+static func get_slot_status(slot: int) -> String:
+	return "Slot %d - %s" % [slot, "Available" if has_save(slot) else "Empty"]
+
+
+static func _is_valid_slot(slot: int) -> bool:
+	return slot >= 1 and slot <= 3
+
+
+static func _slot_path(slot: int) -> String:
+	return SAVE_PATH_TEMPLATE % slot
 
 
 func _player_to_dict(player: Node) -> Dictionary:

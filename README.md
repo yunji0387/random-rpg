@@ -19,7 +19,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the game flow, system boundaries, and
   - `I` — inventory and equipment screen
   - `P` — pause menu
   - `Settings` — configure mouse sensitivity and brightness from the main menu or pause menu
-  - Pause menu `Save Game` / `Load Game` — persist or restore player progress
+  - Pause menu `Save Slot 1-3` / `Load Slot 1-3` — persist or restore player progress
+  - Main menu `Load Game` — choose from the three save slots before entering the world
   - `Esc` — open/close the pause menu, or close the inventory screen
 
 ## Project Structure
@@ -28,7 +29,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the game flow, system boundaries, and
 scenes/
   ui/
     MainMenu.tscn   # Title screen
-    HUD.tscn        # In-game overlay (health/mana/stamina/xp bars, quest, time, messages, debug readout)
+    HUD.tscn        # In-game overlay, inventory, pause menu, and three save slots
+    SettingsPanel.tscn # Shared mouse sensitivity and brightness controls
   Main.tscn         # Open world root (sky, sun, streamed terrain, weather, quests, player, HUD)
   Player.tscn        # Playable 3D character
   Enemy.tscn         # Wandering/chasing enemy
@@ -47,6 +49,9 @@ scripts/
   Pickup.gd           # Item pickup behavior
   NPC.gd              # Dialogue trigger
   QuestManager.gd     # Tracks a simple kill-count quest
+  SaveSystem.gd       # Reads and writes three persistent save slots
+  Settings.gd         # Persistent settings autoload and brightness application
+  SettingsPanel.gd    # Settings UI behavior
   Item.gd             # Weapon/armor/consumable item resource
   Inventory.gd        # Player item list
 shaders/
@@ -91,6 +96,14 @@ shaders/
 - [ ] Audio: music, ambience, SFX
 - [ ] Performance passes (LOD, occlusion culling)
 - [ ] Playtesting & balancing
+
+## Known Limitations
+
+- Terrain chunks are streamed in memory around the player; exploring does not continuously write generated chunks to local storage.
+- Only the nearby 7x7 chunk area is active at one time. Chunks outside the streaming radius are freed to control memory usage.
+- Terrain is deterministic from the world seed, but enemies, pickups, and props are not persisted individually. Unloaded chunks may regenerate their entities when revisited.
+- Save and settings data are stored in small JSON files under `user://`: `random_rpg_save_1.json` through `random_rpg_save_3.json`, plus `random_rpg_settings.json`.
+- Very large world coordinates may eventually encounter floating-point precision limits.
 
 ## Contributing Notes
 This is an early prototype — scenes and scripts are intentionally simple placeholders meant to be expanded on as systems are built out.
