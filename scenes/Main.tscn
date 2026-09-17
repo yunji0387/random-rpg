@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/WorldGenerator.gd" id="6"]
 [ext_resource type="Script" path="res://scripts/Weather.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/QuestManager.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/SaveSystem.gd" id="9"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 
@@ -45,6 +46,7 @@ script = ExtResource("4")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1")
+groups = ["world_environment"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-40, -20, 0)
@@ -60,6 +62,10 @@ script = ExtResource("6")
 
 [node name="QuestManager" type="Node" parent="."]
 script = ExtResource("8")
+
+[node name="SaveSystem" type="Node" parent="."]
+process_mode = 3
+script = ExtResource("9")
 
 [node name="Weather" type="Node3D" parent="."]
 script = ExtResource("7")

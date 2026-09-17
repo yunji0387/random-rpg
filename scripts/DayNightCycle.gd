@@ -42,6 +42,6 @@ func _process(delta: float) -> void:
 
 func get_time_string() -> String:
 	var total_minutes := int(time_of_day * 24.0 * 60.0)
-	var hours := total_minutes / 60
+	var hours := floori(total_minutes / 60.0)
 	var minutes := total_minutes % 60
 	return "Day %d - %02d:%02d" % [day_count, hours, minutes]

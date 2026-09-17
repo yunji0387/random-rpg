@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SettingsPanel.tscn" id="2"]
 
 [node name="MainMenu" type="Control"]
 anchor_right = 1.0
@@ -27,5 +28,21 @@ text = "Random RPG"
 [node name="StartButton" type="Button" parent="VBoxContainer"]
 text = "Start"
 
+[node name="SettingsButton" type="Button" parent="VBoxContainer"]
+text = "Settings"
+
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 text = "Quit"
+
+[node name="SettingsPanel" parent="." instance=ExtResource("2")]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -150.0
+offset_right = 180.0
+offset_bottom = 150.0

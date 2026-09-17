@@ -2,6 +2,8 @@
 
 A 3D open-world RPG prototype built in Godot 4.7.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the game flow, system boundaries, and a complete scene/script/shader reference.
+
 ## Getting Started
 
 1. Open this folder in Godot 4.7+.
@@ -14,7 +16,11 @@ A 3D open-world RPG prototype built in Godot 4.7.
    - `Ctrl` — crouch
    - `R` — roll/dodge (costs stamina, has a cooldown)
    - `Left Mouse Button` — melee attack
-   - `Esc` — release/capture mouse cursor
+  - `I` — inventory and equipment screen
+  - `P` — pause menu
+  - `Settings` — configure mouse sensitivity and brightness from the main menu or pause menu
+  - Pause menu `Save Game` / `Load Game` — persist or restore player progress
+  - `Esc` — open/close the pause menu, or close the inventory screen
 
 ## Project Structure
 
@@ -74,10 +80,10 @@ shaders/
 - [x] Minimal quest system (`QuestManager.gd`, kill-count quest with XP reward) and a dialogue-triggering NPC
 
 ### Phase 4 — UI/UX
-- [ ] Inventory & equipment screens
+- [x] Inventory & equipment screens
 - [ ] Quest log and journal
 - [ ] Minimap / world map
-- [ ] Save/load system with UI
+- [x] Save/load system with pause menu UI (`user://random_rpg_save.json`)
 
 ### Phase 5 — Content & Polish
 - [ ] NPC towns/villages

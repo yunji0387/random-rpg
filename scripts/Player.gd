@@ -9,7 +9,6 @@ const ROLL_SPEED := 10.0
 const ROLL_DURATION := 0.35
 const ROLL_COOLDOWN := 0.8
 const JUMP_VELOCITY := 4.5
-const MOUSE_SENSITIVITY := 0.0025
 const GRAVITY := 9.8
 
 const MAX_STAMINA := 100.0
@@ -65,11 +64,11 @@ var inventory := Inventory.new()
 var equipped_weapon: Item
 var equipped_armor: Item
 var _attack_cooldown_timer := 0.0
+var inventory_open := false
 
 
 func _ready() -> void:
 	add_to_group("player")
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# avoid mutating the shared capsule resources across instances
 	collision_shape.shape = collision_shape.shape.duplicate()
 	mesh.mesh = mesh.mesh.duplicate()
@@ -79,22 +78,35 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * MOUSE_SENSITIVITY)
-		_camera_pitch = clamp(_camera_pitch - event.relative.y * MOUSE_SENSITIVITY, -1.2, 1.2)
-		spring_arm.rotation.x = _camera_pitch
+	if inventory_open:
+		if event is InputEventMouseButton and event.pressed:
+			return
+		if event is InputEventMouseMotion:
+			return
+		if event is InputEventKey and event.keycode == KEY_I and event.pressed:
+			toggle_inventory()
+			return
+		return
 
-	if event.is_action_pressed("ui_cancel"):
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if event is InputEventKey and event.pressed and event.keycode == KEY_I:
+		toggle_inventory()
+		return
+
+	if event is InputEventMouseMotion:
+		rotate_y(-event.relative.x * Settings.mouse_sensitivity)
+		_camera_pitch = clamp(_camera_pitch - event.relative.y * Settings.mouse_sensitivity, -1.2, 1.2)
+		spring_arm.rotation.x = _camera_pitch
 
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_attempt_attack()
 
 
 func _physics_process(delta: float) -> void:
+	if inventory_open:
+		velocity.x = move_toward(velocity.x, 0.0, 20.0)
+		velocity.z = move_toward(velocity.z, 0.0, 20.0)
+		return
+
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
 
@@ -277,12 +289,14 @@ func gain_xp(amount: float) -> void:
 
 func collect_item(item: Item) -> void:
 	inventory.add_item(item)
+	_refresh_inventory_ui()
 	match item.item_type:
 		Item.ItemType.WEAPON, Item.ItemType.ARMOR:
 			equip_item(item)
 		Item.ItemType.CONSUMABLE:
 			heal(item.heal_amount)
 			inventory.remove_item(item)
+			_refresh_inventory_ui()
 
 
 func equip_item(item: Item) -> void:
@@ -293,6 +307,25 @@ func equip_item(item: Item) -> void:
 		Item.ItemType.ARMOR:
 			equipped_armor = item
 			defense = BASE_DEFENSE + item.defense_bonus
+	_refresh_inventory_ui()
+
+
+func toggle_inventory() -> void:
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud == null or not hud.has_method("set_inventory_visible"):
+		return
+
+	_refresh_inventory_ui()
+	inventory_open = not inventory_open
+	hud.set_inventory_visible(inventory_open)
+	if inventory_open:
+		velocity = Vector3.ZERO
+
+
+func _refresh_inventory_ui() -> void:
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud != null and hud.has_method("set_inventory"):
+		hud.set_inventory(inventory.items, equipped_weapon, equipped_armor)
 
 
 func _die() -> void:
